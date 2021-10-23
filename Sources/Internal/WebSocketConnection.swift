@@ -22,10 +22,6 @@ class WebSocketConnection {
     // serial queue for receiving the calls.
     private let serialCallbackQueue: DispatchQueue
 
-    var isOpen: Bool {
-        return socket.isConnected
-    }
-
     init(url: WCURL,
          onConnect: (() -> Void)?,
          onDisconnect: ((Error?) -> Void)?,
@@ -66,6 +62,33 @@ class WebSocketConnection {
 }
 
 extension WebSocketConnection: WebSocketDelegate {
+    func didReceive(event: WebSocketEvent, client: WebSocket) {
+        switch event {
+        case .connected(let headers):
+            isConnected = true
+            print("websocket is connected: \(headers)")
+        case .disconnected(let reason, let code):
+            isConnected = false
+            print("websocket is disconnected: \(reason) with code: \(code)")
+        case .text(let string):
+            print("Received text: \(string)")
+        case .binary(let data):
+            print("Received data: \(data.count)")
+        case .ping(_):
+            break
+        case .pong(_):
+            break
+        case .viabilityChanged(_):
+            break
+        case .reconnectSuggested(_):
+            break
+        case .cancelled:
+            isConnected = false
+        case .error(let error):
+            isConnected = false
+            handleError(error)
+        }
+    }
     func websocketDidConnect(socket: WebSocketClient) {
         pingTimer = Timer.scheduledTimer(withTimeInterval: pingInterval, repeats: true) { [weak self] _ in
             LogService.shared.log("WC: ==> ping")
