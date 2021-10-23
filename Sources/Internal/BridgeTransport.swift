@@ -18,6 +18,7 @@ protocol Transport {
 // future: if request is not notification - then it will be pending for response
 
 class Bridge: Transport {
+   
     private var connections: [WebSocketConnection] = []
     private let syncQueue = DispatchQueue(label: "org.walletconnect.swift.transport")
 
@@ -49,9 +50,7 @@ class Bridge: Transport {
                                                  onTextReceive: { text in onTextReceive(text, url) })
                 self.connections.append(connection)
             }
-            if !connection.isOpen {
-                connection.open()
-            }
+          
         }
     }
 
@@ -61,7 +60,7 @@ class Bridge: Transport {
         syncQueue.sync { [unowned self] in
             connection = self.findConnection(url: url)
         }
-        return connection?.isOpen ?? false
+        return connection?.isConnected ?? false
     }
 
     func disconnect(from url: WCURL) {

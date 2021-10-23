@@ -26,10 +26,10 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Web3WalletConnect",
-            dependencies: ["CryptoSwift", "Starscream"]),
+            dependencies: ["CryptoSwift", "Starscream"], path: "Sources"),
         .testTarget(
             name: "Web3WalletConnectTests",
-            dependencies: ["Web3WalletConnect"]),
+            dependencies: ["Web3WalletConnect"], path: "Tests"),
     ]
 )
 /*

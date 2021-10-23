@@ -7,6 +7,7 @@ import Starscream
 
 class WebSocketConnection {
     let url: WCURL
+    var isConnected: Bool = false
     private let socket: WebSocket
     private let onConnect: (() -> Void)?
     private let onDisconnect: ((Error?) -> Void)?
@@ -31,7 +32,7 @@ class WebSocketConnection {
         self.onDisconnect = onDisconnect
         self.onTextReceive = onTextReceive
         serialCallbackQueue = DispatchQueue(label: "org.walletconnect.swift.connection-\(url.bridgeURL)-\(url.topic)")
-        socket = WebSocket(url: url.bridgeURL)
+        socket = WebSocket(request: URLRequest(url: url.bridgeURL))
         socket.delegate = self
         socket.callbackQueue = serialCallbackQueue
     }
@@ -45,7 +46,6 @@ class WebSocketConnection {
     }
 
     func send(_ text: String) {
-        guard socket.isConnected else { return }
         socket.write(string: text)
         log(text)
     }
@@ -86,7 +86,7 @@ extension WebSocketConnection: WebSocketDelegate {
             isConnected = false
         case .error(let error):
             isConnected = false
-            handleError(error)
+//            handleError(error)
         }
     }
     func websocketDidConnect(socket: WebSocketClient) {
